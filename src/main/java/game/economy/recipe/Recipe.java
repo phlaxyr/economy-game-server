@@ -11,6 +11,5 @@ public interface Recipe {
 	public Map<Item, Integer> getOutput();
 
 	public Map<Facility[], Long> getTimeRequired();
-	
-	
+
 }

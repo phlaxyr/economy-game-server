@@ -10,7 +10,9 @@ import game.economy.websocket.impl.GameServerSocketSimple;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 public class GameServer {
 	public static final transient int DEFAULT_PORT = 1942;
@@ -27,6 +29,7 @@ public class GameServer {
 	private DataDB database;
 	
 	public void start() {
+		log.info("Server started");
 		GameServerSocket socket = new GameServerSocketSimple();
 		socket.startServer(this, DEFAULT_PORT);
 	}

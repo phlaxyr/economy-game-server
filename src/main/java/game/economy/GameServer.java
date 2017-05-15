@@ -5,6 +5,8 @@ import java.util.Collection;
 import game.economy.items.Item;
 import game.economy.recipe.Recipe;
 import game.economy.userdb.DataDB;
+import game.economy.websocket.GameServerSocket;
+import game.economy.websocket.impl.GameServerSocketSimple;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -25,6 +27,7 @@ public class GameServer {
 	private DataDB database;
 	
 	public void start() {
-		
+		GameServerSocket socket = new GameServerSocketSimple();
+		socket.startServer(this, DEFAULT_PORT);
 	}
 }

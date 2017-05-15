@@ -60,7 +60,7 @@ public class GameSocketHandlerSimple extends WebSocketServer {
 				return;
 			}
 
-			// do what the request hsould do
+			// do what the request should do
 			type.runTask(server);
 		} catch (JsonSyntaxException e) {
 			// TODO send back an error message

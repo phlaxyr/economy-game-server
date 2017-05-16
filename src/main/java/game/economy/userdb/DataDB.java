@@ -48,13 +48,4 @@ public interface DataDB {
 
 		return false;
 	}
-
-	// orders
-	public int buyOrder(String user, Item item, long amount);
-
-	public int sellOrder(String user, Item item, long amount);
-
-	public boolean cancelOrder(int id);
-
-	public void matchOrders();
 }

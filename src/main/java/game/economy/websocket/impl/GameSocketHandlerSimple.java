@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import game.economy.GameServer;
+import game.economy.GlobalGSON;
 import game.economy.websocket.Request;
 import game.economy.websocket.RequestType;
 import lombok.Getter;
@@ -22,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GameSocketHandlerSimple extends WebSocketServer {
-	private Gson gson = new Gson();
 	private Map<String, RequestType> requestTypes;
 
 	@Getter
@@ -53,18 +53,20 @@ public class GameSocketHandlerSimple extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket arg0, String arg1) {
 		try {
-			Request r = Request.fromJson(gson, arg1);
+			Request r = Request.fromJson(GlobalGSON.instance(), arg1);
 
 			RequestType type = requestTypes.get(r.getType());
 
 			if (type == null) {
 				// TODO send back an error message
+				log.debug("Invalid request: {}", r);
 				return;
 			}
 
 			// do what the request should do
-			type.runTask(server);
+			type.runTask(r, arg0, server);
 		} catch (JsonSyntaxException e) {
+			log.debug("Invalid request from {}: {}", arg0.getRemoteSocketAddress(), arg1);
 			// TODO send back an error message
 		}
 

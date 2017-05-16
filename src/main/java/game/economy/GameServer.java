@@ -7,6 +7,7 @@ import game.economy.recipe.Recipe;
 import game.economy.userdb.DataDB;
 import game.economy.websocket.GameServerSocket;
 import game.economy.websocket.impl.GameServerSocketSimple;
+import game.economy.websocket.request.PingRequest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -31,6 +32,9 @@ public class GameServer {
 	public void start() {
 		log.info("Server started");
 		GameServerSocket socket = new GameServerSocketSimple();
+		
+		socket.registerRequest(new PingRequest());
+		
 		socket.startServer(this, DEFAULT_PORT);
 	}
 }

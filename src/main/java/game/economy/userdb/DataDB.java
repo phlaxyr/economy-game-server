@@ -48,4 +48,7 @@ public interface DataDB {
 
 		return false;
 	}
+	
+	// db stuff
+	public void commit();
 }

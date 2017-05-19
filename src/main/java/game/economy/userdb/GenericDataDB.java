@@ -28,9 +28,20 @@ public abstract class GenericDataDB implements DataDB {
 	protected Connection connection;
 	protected Statement stmt;
 
-	public GenericDataDB() throws SQLException {
-		connection = makeConn();
+	public GenericDataDB(String conn, boolean init) throws SQLException {
+		connection = makeConn(conn);
 		stmt = connection.createStatement();
+
+		if (init) {
+			log.info("Making new database");
+
+			initDB();
+		}
+
+		prepareStatements();
+
+		// disable auto commit
+		connection.setAutoCommit(false);
 	}
 
 	protected void initDB() throws SQLException {
@@ -51,6 +62,17 @@ public abstract class GenericDataDB implements DataDB {
 		statements.put(name, connection.prepareStatement(sql));
 	}
 
+	@Override
+	public void commit() {
+		try {
+			log.info("Committing to database...");
+			connection.commit();
+			log.info("Commit done!");
+		} catch (SQLException e) {
+			log.error("Something went wrong committing database! ", e);
+		}
+	}
+
 	public static String getSQL(String file) {
 		file = "/game/sql/" + file;
 
@@ -63,7 +85,7 @@ public abstract class GenericDataDB implements DataDB {
 		}
 	}
 
-	protected abstract Connection makeConn() throws SQLException;
+	protected abstract Connection makeConn(String conn) throws SQLException;
 
 	@Override
 	public boolean registerUser(String username, String password) {
@@ -78,15 +100,21 @@ public abstract class GenericDataDB implements DataDB {
 
 				put.setString(2, hash);
 			}
-			
-			put.setLong(1, System.currentTimeMillis());
+
+			put.setLong(3, System.currentTimeMillis());
 
 			put.executeUpdate();
-		} catch (PasswordException | SQLException e) {
-			log.warn("An error happened that shouldn't happen: {}", e);
+		} catch (SQLException e) {
+			if (e.getErrorCode() == 19)
+				log.warn("Tried to register duplicate user {}!", username);
+			else
+				log.warn("An error happened during user registration [{}]: ", e.getErrorCode(), e);
+			return false;
+		} catch (PasswordException e) {
+			log.warn("An error happened during user registration: ", e);
 			return false;
 		}
-
+		log.info("Successfully registered new user `{}`", username);
 		return true;
 	}
 
@@ -94,34 +122,40 @@ public abstract class GenericDataDB implements DataDB {
 	public boolean login(String username, String password) {
 		try {
 			PreparedStatement get = sql("getUserPassHash");
-			
+
 			get.setString(1, username);
-			
+
 			ResultSet rs = get.executeQuery();
-			
+
 			// username does not exist
-			if(!rs.next())
-				return false;
-			
-			String passHash = rs.getString("passhash");
-			
-			// this should be impossible normally
-			if(passHash == null)
-				throw new NullPointerException("passHash for user " + username + " was null!");
-			
-			Password pw = PasswordFactory.create();
-			boolean verified = pw.verify(password, passHash);
-			
-			// wrong password
-			if(!verified) {
+			if (!rs.next()) {
+				log.info("User {} tried to login, but does not exist! ", username);
 				return false;
 			}
-			
-		} catch (PasswordException | SQLException e) {
-			log.warn("An error happened that shouldn't happen: {}", e);
+
+			String passHash = rs.getString("passhash");
+
+			// this should be impossible normally
+			if (passHash == null)
+				throw new NullPointerException("passHash for user " + username + " was null!");
+
+			Password pw = PasswordFactory.create();
+			boolean verified = pw.verify(password, passHash);
+
+			// wrong password
+			if (!verified) {
+				return false;
+			}
+
+		} catch (SQLException e) {
+			log.warn("An error happened during login [{}]", e.getErrorCode(), e);
+			return false;
+		} catch (PasswordException e) {
+			log.warn("An error happened during login: ", e);
 			return false;
 		}
-		
+
+		log.info("User {} logged in successfully", username);
 		return true;
 	}
 

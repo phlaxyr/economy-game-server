@@ -1,1 +1,1 @@
-INSERT INTO `ECON_USERS`(`username`,`passhash`,`timeregistered`,`balance`) VALUES (?,?,?,0);
+INSERT INTO `USERS`(`username`,`passhash`,`timeregistered`,`balance`) VALUES (?,?,?,0);

@@ -79,6 +79,7 @@ public abstract class GenericDataDB implements DataDB {
 			
 			put.setLong(1, System.currentTimeMillis());
 
+			put.executeUpdate();
 		} catch (PasswordException | SQLException e) {
 			return false;
 		}

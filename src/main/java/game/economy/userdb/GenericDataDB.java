@@ -46,16 +46,16 @@ public abstract class GenericDataDB implements DataDB {
 
 	protected void initDB() throws SQLException {
 		log.debug("Initializing new database");
-		
+
 		// init db
 		String[] s = getSQL("initDB.sql").split(";");
-		
-		for(String sql : s) {
+
+		for (String sql : s) {
 			sql = sql.trim();
-			
-			if(sql.isEmpty())
+
+			if (sql.isEmpty())
 				continue;
-			
+
 			stmt.execute(sql);
 		}
 	}
@@ -63,6 +63,7 @@ public abstract class GenericDataDB implements DataDB {
 	protected void prepareStatements() throws SQLException {
 		prepareStatement("putUser", getSQL("putUser.sql"));
 		prepareStatement("getUserPassHash", getSQL("getUserPassHash.sql"));
+		prepareStatement("getBalance", getSQL("getBalance.sql"));
 	}
 
 	protected PreparedStatement sql(String name) {
@@ -170,6 +171,7 @@ public abstract class GenericDataDB implements DataDB {
 		return true;
 	}
 
+	/*
 	@Override
 	public Map<Item, Integer> getInventory(String username) {
 		// TODO Auto-generated method stub
@@ -199,11 +201,25 @@ public abstract class GenericDataDB implements DataDB {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	*/
 
 	@Override
 	public long getBalance(String user) {
-		// TODO Auto-generated method stub
-		return 0;
+		try {
+			PreparedStatement ps = sql("getBalance");
+			ps.setString(1, user);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next())
+				return -1;
+
+			return rs.getLong("balance");
+		} catch (SQLException e) {
+			log.error("An error happened whilst obtaining the balance of {}: ", user, e);
+
+			return -1;
+		}
 	}
 
 	@Override

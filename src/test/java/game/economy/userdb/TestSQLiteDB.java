@@ -28,4 +28,10 @@ public class TestSQLiteDB {
 		assertTrue(login);
 		assertFalse(wrongpw);
 	}
+	
+	
+	@Test
+	public void testBalance() {
+		
+	}
 }

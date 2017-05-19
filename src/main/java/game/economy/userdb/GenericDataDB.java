@@ -46,8 +46,18 @@ public abstract class GenericDataDB implements DataDB {
 
 	protected void initDB() throws SQLException {
 		log.debug("Initializing new database");
-		stmt.execute(getSQL("mkUserTable.sql"));
-		stmt.execute(getSQL("index/UK_USERS_USERNAME.sql"));
+		
+		// init db
+		String[] s = getSQL("initDB.sql").split(";");
+		
+		for(String sql : s) {
+			sql = sql.trim();
+			
+			if(sql.isEmpty())
+				continue;
+			
+			stmt.execute(sql);
+		}
 	}
 
 	protected void prepareStatements() throws SQLException {

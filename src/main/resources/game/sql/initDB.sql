@@ -1,4 +1,4 @@
--- Makes the main users table
+-- Make the USERS table
 CREATE TABLE `USERS` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`username`	VARCHAR(100) NOT NULL UNIQUE,
@@ -7,6 +7,8 @@ CREATE TABLE `USERS` (
 	`balance`	BIGINT NOT NULL
 );
 
+-- Username index on USERS
 CREATE UNIQUE INDEX `UK_USERS_USERNAME` ON `USERS` (
 	`username`
 );
+

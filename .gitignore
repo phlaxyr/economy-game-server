@@ -33,3 +33,6 @@ gradle-app.setting
 .classpath
 .settings/
 /bin/
+
+# other
+logs/

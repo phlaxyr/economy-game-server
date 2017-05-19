@@ -1,5 +1,7 @@
 package game.economy.websocket;
 
+import org.java_websocket.WebSocket;
+
 import game.economy.GameServer;
 
 public interface RequestType {
@@ -7,5 +9,5 @@ public interface RequestType {
 
 	public String[] getData();
 	
-	public void runTask(GameServer gs);
+	public void runTask(Request req, WebSocket ws, GameServer gs);
 }

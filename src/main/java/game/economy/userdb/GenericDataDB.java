@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public abstract class GenericDataDB implements DataDB {
 
 	protected void prepareStatements() throws SQLException {
 		prepareStatement("putUser", getSQL("putUser.sql"));
+		prepareStatement("getUserPassHash", getSQL("getUserPassHash.sql"));
 	}
 
 	protected PreparedStatement sql(String name) {
@@ -81,6 +83,7 @@ public abstract class GenericDataDB implements DataDB {
 
 			put.executeUpdate();
 		} catch (PasswordException | SQLException e) {
+			log.warn("An error happened that shouldn't happen: {}", e);
 			return false;
 		}
 
@@ -89,8 +92,37 @@ public abstract class GenericDataDB implements DataDB {
 
 	@Override
 	public boolean login(String username, String password) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			PreparedStatement get = sql("getUserPassHash");
+			
+			get.setString(1, username);
+			
+			ResultSet rs = get.executeQuery();
+			
+			// username does not exist
+			if(!rs.next())
+				return false;
+			
+			String passHash = rs.getString("passhash");
+			
+			// this should be impossible normally
+			if(passHash == null)
+				throw new NullPointerException("passHash for user " + username + " was null!");
+			
+			Password pw = PasswordFactory.create();
+			boolean verified = pw.verify(password, passHash);
+			
+			// wrong password
+			if(!verified) {
+				return false;
+			}
+			
+		} catch (PasswordException | SQLException e) {
+			log.warn("An error happened that shouldn't happen: {}", e);
+			return false;
+		}
+		
+		return true;
 	}
 
 	@Override

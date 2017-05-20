@@ -22,7 +22,6 @@ repositories {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.google.code.findbugs:jsr305:3.0.2'
-    compileOnly "org.projectlombok:lombok:1.16.16"
     compile 'mysql:mysql-connector-java:5.1.6'
     compile 'de.qaware:heimdall:1.4'
     compile 'com.google.code.gson:gson:2.8.0'
@@ -31,7 +30,7 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     compile 'org.xerial:sqlite-jdbc:3.8.11.2'
 
-	
+    compileOnly 'org.projectlombok:lombok:1.16.16'	
     
 
     testCompile 'junit:junit:4.12'

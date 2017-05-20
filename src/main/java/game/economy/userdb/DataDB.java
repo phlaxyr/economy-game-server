@@ -12,6 +12,7 @@ public interface DataDB {
 	public boolean login(String username, String password);
 
 	// inventory
+	/*
 	public Map<Item, Integer> getInventory(String username);
 
 	public boolean hasItems(Map<Item, Integer> items);
@@ -30,9 +31,11 @@ public interface DataDB {
 
 		return false;
 	}
+	
 
 	public long itemCount(Item item);
-
+	*/
+	
 	// money
 	public long getBalance(String user);
 

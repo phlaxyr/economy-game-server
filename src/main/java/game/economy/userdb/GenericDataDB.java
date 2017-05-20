@@ -46,12 +46,25 @@ public abstract class GenericDataDB implements DataDB {
 
 	protected void initDB() throws SQLException {
 		log.debug("Initializing new database");
-		stmt.execute(getSQL("mkUserTable.sql"));
+
+		// init db
+		String[] s = getSQL("initDB.sql").split(";");
+
+		for (String sql : s) {
+			sql = sql.trim();
+
+			if (sql.isEmpty())
+				continue;
+
+			stmt.execute(sql);
+		}
 	}
 
 	protected void prepareStatements() throws SQLException {
 		prepareStatement("putUser", getSQL("putUser.sql"));
 		prepareStatement("getUserPassHash", getSQL("getUserPassHash.sql"));
+		prepareStatement("getBalance", getSQL("getBalance.sql"));
+		prepareStatement("changeBalance", getSQL("changeBalance.sql"));
 	}
 
 	protected PreparedStatement sql(String name) {
@@ -159,6 +172,7 @@ public abstract class GenericDataDB implements DataDB {
 		return true;
 	}
 
+	/*
 	@Override
 	public Map<Item, Integer> getInventory(String username) {
 		// TODO Auto-generated method stub
@@ -188,17 +202,42 @@ public abstract class GenericDataDB implements DataDB {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	*/
 
 	@Override
 	public long getBalance(String user) {
-		// TODO Auto-generated method stub
-		return 0;
+		try {
+			PreparedStatement ps = sql("getBalance");
+			ps.setString(1, user);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next())
+				return -1;
+
+			return rs.getLong("balance");
+		} catch (SQLException e) {
+			log.error("An error happened whilst obtaining the balance of {}: ", user, e);
+
+			return -1;
+		}
 	}
 
 	@Override
 	public boolean changeBalance(String user, long delta) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			PreparedStatement ps = sql("changeBalance");
+			ps.setLong(1, delta);
+			ps.setString(2, user);
+			ps.setLong(3, Math.max(0, -delta));
+			
+			// If 1 row updated, then they had enough money and it worked.
+			return (ps.executeUpdate() == 1);
+		} catch (SQLException e) {
+			log.error("An error happened whilst obtaining the balance of {}: ", user, e);
+
+			return false;
+		}
 	}
 
 }

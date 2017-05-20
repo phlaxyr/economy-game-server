@@ -31,10 +31,11 @@ public interface DataDB {
 
 		return false;
 	}
-	*/
+	
 
 	public long itemCount(Item item);
-
+	*/
+	
 	// money
 	public long getBalance(String user);
 

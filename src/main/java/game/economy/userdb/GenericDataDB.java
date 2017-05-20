@@ -64,6 +64,7 @@ public abstract class GenericDataDB implements DataDB {
 		prepareStatement("putUser", getSQL("putUser.sql"));
 		prepareStatement("getUserPassHash", getSQL("getUserPassHash.sql"));
 		prepareStatement("getBalance", getSQL("getBalance.sql"));
+		prepareStatement("changeBalance", getSQL("changeBalance.sql"));
 	}
 
 	protected PreparedStatement sql(String name) {
@@ -224,8 +225,19 @@ public abstract class GenericDataDB implements DataDB {
 
 	@Override
 	public boolean changeBalance(String user, long delta) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			PreparedStatement ps = sql("changeBalance");
+			ps.setLong(1, delta);
+			ps.setString(2, user);
+			ps.setLong(3, Math.max(0, -delta));
+			
+			// If 1 row updated, then they had enough money and it worked.
+			return (ps.executeUpdate() == 1);
+		} catch (SQLException e) {
+			log.error("An error happened whilst obtaining the balance of {}: ", user, e);
+
+			return false;
+		}
 	}
 
 }
